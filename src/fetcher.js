@@ -1,7 +1,7 @@
 import axios from "axios";
 import https from "https";
 
-const BASE_URL = process.env.BINANCE_BASE_URL;
+
 
 // Custom HTTPS Agent yang bypass SSL verification
 // (workaround untuk ISP/firewall yang intercept SSL)
@@ -53,7 +53,8 @@ export async function getKlines(
   interval = "15m",
   limit = 100,
 ) {
-  const res = await fetchWithRetry(`${BASE_URL}/api/v3/klines`, {
+  const baseUrl = process.env.BINANCE_BASE_URL;
+  const res = await fetchWithRetry(`${baseUrl}/api/v3/klines`, {
     params: { symbol, interval, limit },
   });
 
