@@ -10,36 +10,19 @@ Bot kini beroperasi sebagai **Trading Decision Support System** yang menyimpan h
 *   `src/fetcher.js`: Pengambil data API.
 *   `src/indicators.js`: Penghitung RSI, MACD, dan **EMA 50**.
 *   `src/signal.js`: Keputusan BUY/SELL dengan **Trend Filter**.
-*   `src/storage.js`: (Baru) Manajemen baca/tulis file JSON.
+*   `src/storage.js`: (Baru) Manajemen database MongoDB untuk status dan riwayat trade.
 *   `src/tradeEngine.js`: (Baru) Penghitung SL/TP, evaluasi WIN/LOSS, dan kalkulasi winrate.
 
 ## 3. Layer Persistensi Data
-Karena sistem berjalan periodik (cron), data disimpan dalam file JSON:
+Sistem menggunakan **MongoDB** untuk menyimpan data secara persisten, memungkinkan skalabilitas dan integritas data yang lebih baik dibandingkan file lokal.
 
-### `state.json`
-Menyimpan sinyal terakhir untuk mencegah spam notifikasi.
-```json
-{
-  "BTCUSDT": "HOLD",
-  "ETHUSDT": "BUY"
-}
-```
+### Koleksi `states`
+Menyimpan sinyal terakhir per simbol untuk mencegah spam notifikasi.
+- **Fields:** `symbol`, `signal`, `updatedAt`
 
-### `trades.json`
-Menyimpan riwayat trade untuk evaluasi performa.
-```json
-[
-  {
-    "id": "abc-123",
-    "symbol": "BTCUSDT",
-    "entry": 65000,
-    "sl": 64000,
-    "tp": 67000,
-    "status": "OPEN",
-    "timestamp": 1710000000
-  }
-]
-```
+### Koleksi `trades`
+Menyimpan riwayat dan status trade untuk evaluasi performa.
+- **Fields:** `id`, `symbol`, `signal`, `entry`, `sl`, `tp`, `rr`, `status`, `timestamp`, `createdAt`, `updatedAt`
 
 ## 4. Algoritma & Logika Diperbarui
 

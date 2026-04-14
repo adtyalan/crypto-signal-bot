@@ -67,6 +67,7 @@ System evaluates:
 ## 🧱 Key Conceptual Upgrades
 * From stateless → **state-aware system**
 * From signal → **trade lifecycle**
+* From local storage → **cloud persistence (MongoDB)**
 * From output → **performance feedback loop**
 
 ---
