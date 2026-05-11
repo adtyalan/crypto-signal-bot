@@ -1,5 +1,5 @@
 import { getKlines } from "./fetcher.js";
-import { calculateIndicators } from "./indicators.js";
+import { calculateIndicators, calculateTrend1h } from "./indicators.js";
 import { generateSignal } from "./signal.js";
 import { sendMessage } from "./notifier.js";
 import { loadState, saveState, loadTrades, saveTrades, closeDb } from "./storage.js";
@@ -33,9 +33,13 @@ async function runBot(env) {
       try {
         const data = await getKlines(symbol, INTERVAL, KLINE_LIMIT, env);
         const indicators = calculateIndicators(data);
-        const signal = generateSignal(indicators);
         const lastClose = indicators.lastClose;
         currentPrices[symbol] = lastClose;
+
+        // 1.5 Ambil data 1H untuk Trend Filter
+        const data1h = await getKlines(symbol, "1h", 100, env);
+        const trend1h = calculateTrend1h(data1h);
+        const signal = generateSignal(indicators, trend1h);
 
         // 1. Evaluasi trade OPEN yang ada
         const { newTrades, updated, closedTrades } = evaluateTrades(trades, currentPrices);
@@ -74,7 +78,8 @@ async function runBot(env) {
           ema50: indicators.ema50,
           lastClose,
           tradePlan,
-          previousSignal
+          previousSignal,
+          trend1h
         });
 
       } catch (symbolError) {
@@ -96,7 +101,8 @@ async function runBot(env) {
       }
 
       const signalLine = `${formatPair(res.symbol)}: ${res.signal} ${res.signal !== res.previousSignal ? "🔥" : ""}`;
-      lines.push(`${signalLine} | RSI ${res.rsi.toFixed(2)} | E9 ${res.ema9.toFixed(1)} | E20 ${res.ema20.toFixed(1)}`);
+      lines.push(`${signalLine} | RSI ${res.rsi.toFixed(2)} | T1H ${res.trend1h}`);
+      lines.push(`   E9 ${res.ema9.toFixed(1)} | E20 ${res.ema20.toFixed(1)} | E50 ${res.ema50.toFixed(1)}`);
       
       if (res.tradePlan) {
         lines.push(`   📍 Entry: ${res.tradePlan.entry} | SL: ${res.tradePlan.sl.toFixed(2)} | TP: ${res.tradePlan.tp.toFixed(2)} | RR: ${res.tradePlan.rr}`);

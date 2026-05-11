@@ -40,3 +40,19 @@ export function calculateIndicators(data) {
     data: data, // Keep full data for SL/TP calculation
   };
 }
+
+export function calculateTrend1h(data) {
+  const closes = data.map((d) => d.close);
+  const lastClose = closes[closes.length - 1];
+
+  const ema50 = EMA.calculate({
+    values: closes,
+    period: 50,
+  });
+
+  const lastEma50 = ema50[ema50.length - 1];
+
+  if (lastClose > lastEma50) return "BULLISH";
+  if (lastClose < lastEma50) return "BEARISH";
+  return "NEUTRAL";
+}
