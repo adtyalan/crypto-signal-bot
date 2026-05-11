@@ -21,7 +21,7 @@ Bot ini telah dimigrasikan dari Node.js tradisional (Render.com) ke arsitektur *
 *   `src/indicators.js`: Menghitung indikator teknis (RSI, MACD, EMA 50).
 *   `src/signal.js`: Logika pengambilan keputusan sinyal (BUY/SELL/HOLD).
 *   `src/storage.js`: Manajemen koneksi MongoDB Atlas (Singleton pattern dengan penanganan close connection).
-*   `src/tradeEngine.js`: Perhitungan SL/TP (RR 1:2), evaluasi trade OPEN, dan kalkulasi winrate.
+*   `src/tradeEngine.js`: Perhitungan SL/TP (RR 1:1.5), evaluasi trade OPEN, dan kalkulasi winrate.
 *   `src/notifier.js`: Pengiriman notifikasi ke Telegram menggunakan native `fetch`.
 
 ---
