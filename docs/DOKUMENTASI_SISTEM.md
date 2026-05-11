@@ -92,3 +92,19 @@ Bot menggunakan strategi momentum berbasis crossover EMA dengan konfirmasi MACD 
     *   **Stop Loss (SL):** Dihitung dari Low/High terdekat (5 candle terakhir) dengan buffer 0.1%.
     *   **Take Profit (TP):** Menggunakan rasio keuntungan (RR) **1:1.5** dari risiko untuk memastikan target lebih cepat tercapai di market yang volatile.
 
+---
+
+## 7. Sistem Pelaporan (Performance Tracking)
+Bot memiliki sistem pelaporan otomatis yang matang untuk mempermudah evaluasi strategi:
+
+### Metrik Performa
+- **Winrate:** Rasio kemenangan terhadap total trade tertutup.
+- **W/L Count:** Visualisasi eksplisit jumlah trade yang menyentuh TP (W) dan SL (L).
+- **Total PnL:** Akumulasi profit/loss dalam persentase (%). Kalkulasi didasarkan pada selisih harga entry dan exit.
+
+### Format Laporan (Telegram)
+Laporan dikirimkan dalam format yang rapi menggunakan bullet points beranak:
+- **Header:** Ringkasan statistik global dan timestamp.
+- **Trade Notification:** Notifikasi instan saat trade berpindah status dari OPEN ke WIN/LOSS.
+- **Market Status:** Pohon status per simbol yang dipantau (Indikator, Trend 1H, dan Rencana Trading).
+

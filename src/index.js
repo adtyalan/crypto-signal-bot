@@ -45,7 +45,8 @@ async function runBot(env) {
         const { newTrades, updated, closedTrades } = evaluateTrades(trades, currentPrices);
         trades = newTrades;
         closedTrades.forEach(t => {
-          tradeNotifications.push(`🎯 Trade Closed: ${formatPair(t.symbol)} | Status: ${t.status} | Exit: ${lastClose}`);
+          const pnlSign = t.pnl >= 0 ? "+" : "";
+          tradeNotifications.push(`🎯 *Trade Closed*: ${formatPair(t.symbol)}\n   • Status: ${t.status}\n   • Exit: ${lastClose}\n   • PnL: ${pnlSign}${t.pnl.toFixed(2)}%`);
         });
 
         // 2. Cek Sinyal Baru (Anti-Spam)
@@ -96,28 +97,33 @@ async function runBot(env) {
     const lines = [];
     results.forEach(res => {
       if (res.signal === "ERROR") {
-        lines.push(`${formatPair(res.symbol)}: ERROR | ${res.error}`);
+        lines.push(`• *${formatPair(res.symbol)}*: ❌ ERROR\n  └ ${res.error}`);
         return;
       }
 
-      const signalLine = `${formatPair(res.symbol)}: ${res.signal} ${res.signal !== res.previousSignal ? "🔥" : ""}`;
-      lines.push(`${signalLine} | RSI ${res.rsi.toFixed(2)} | T1H ${res.trend1h}`);
-      lines.push(`   E9 ${res.ema9.toFixed(1)} | E20 ${res.ema20.toFixed(1)} | E50 ${res.ema50.toFixed(1)}`);
+      const signalEmoji = res.signal === "BUY" ? "🟢 BUY" : res.signal === "SELL" ? "🔴 SELL" : "⚪ HOLD";
+      const hotEmoji = res.signal !== res.previousSignal ? "🔥" : "";
+      
+      lines.push(`• *${formatPair(res.symbol)}*: ${signalEmoji} ${hotEmoji}`);
+      lines.push(`  ├ Trend 1H: ${res.trend1h === "BULLISH" ? "📈" : "📉"} ${res.trend1h}`);
+      lines.push(`  ├ RSI: ${res.rsi.toFixed(2)}`);
+      lines.push(`  ├ EMA: 9(${res.ema9.toFixed(0)}), 20(${res.ema20.toFixed(0)}), 50(${res.ema50.toFixed(0)})`);
       
       if (res.tradePlan) {
-        lines.push(`   📍 Entry: ${res.tradePlan.entry} | SL: ${res.tradePlan.sl.toFixed(2)} | TP: ${res.tradePlan.tp.toFixed(2)} | RR: ${res.tradePlan.rr}`);
+        lines.push(`  └ *Plan*: Ent(${res.tradePlan.entry.toFixed(2)}), SL(${res.tradePlan.sl.toFixed(2)}), TP(${res.tradePlan.tp.toFixed(2)}) [RR ${res.tradePlan.rr}]`);
       }
-
     });
 
+    const pnlSign = stats.pnl >= 0 ? "+" : "";
     const finalMessage = [
-      `🚀 Crypto Signal V2 (${INTERVAL})`,
-      `Waktu: ${timestamp} WIB`,
-      `Winrate Keseluruhan: ${stats.rate.toFixed(2)}% (${stats.wins}W - ${stats.losses}L)`,
+      `🚀 *Crypto Signal V2 (${INTERVAL})*`,
+      `📅 ${timestamp} WIB`,
+      `📊 Winrate: *${stats.rate.toFixed(2)}%* (${stats.wins}W - ${stats.losses}L)`,
+      `💰 Total PnL: *${pnlSign}${stats.pnl.toFixed(2)}%*`,
       "",
       ...tradeNotifications,
       tradeNotifications.length > 0 ? "" : null,
-      "--- Status Market ---",
+      "🔍 *Status Market*:",
       ...lines,
     ].filter(l => l !== null).join("\n");
 

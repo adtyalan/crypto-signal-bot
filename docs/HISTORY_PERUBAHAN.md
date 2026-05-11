@@ -40,3 +40,12 @@ Dokumen ini mencatat evolusi teknis dan strategi bot dari awal pengembangan hing
 - **Fitur Utama:** **Multi-Timeframe Filter (MTF)**.
 - **Logika:** Sinyal eksekusi di timeframe 15m wajib dikonfirmasi oleh arah trend di timeframe 1 Jam (1H).
 - **Maintenance:** Pembersihan total database (Reset Context) untuk memulai lembaran baru dengan strategi yang lebih cerdas.
+
+---
+
+### v3.1.0 - PnL Tracking & UI Polish (Current)
+**Timestamp:** 11 Mei 2026, 23:25 WIB
+**Deskripsi:** Peningkatan pelaporan dan transparansi performa bot.
+- **Fitur Baru:** Pelacakan **Total PnL** kumulatif dalam persentase (%) untuk melihat profitabilitas nyata di luar winrate.
+- **UI/UX:** Re-format notifikasi Telegram menggunakan **Nested Bullet Points** dan simbol pohon (`├`, `└`) untuk keterbacaan yang lebih profesional.
+- **Logika:** Perhitungan PnL otomatis per trade berdasarkan selisih harga entry dan exit.

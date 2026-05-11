@@ -37,20 +37,28 @@ export function evaluateTrades(trades, currentPrices) {
     if (trade.signal === "BUY") {
       if (currentPrice >= trade.tp) {
         trade.status = "WIN";
+        trade.exitPrice = trade.tp;
+        trade.pnl = ((trade.tp - trade.entry) / trade.entry) * 100;
         updated = true;
         closedTrades.push(trade);
       } else if (currentPrice <= trade.sl) {
         trade.status = "LOSS";
+        trade.exitPrice = trade.sl;
+        trade.pnl = ((trade.sl - trade.entry) / trade.entry) * 100;
         updated = true;
         closedTrades.push(trade);
       }
     } else if (trade.signal === "SELL") {
       if (currentPrice <= trade.tp) {
         trade.status = "WIN";
+        trade.exitPrice = trade.tp;
+        trade.pnl = ((trade.entry - trade.tp) / trade.entry) * 100;
         updated = true;
         closedTrades.push(trade);
       } else if (currentPrice >= trade.sl) {
         trade.status = "LOSS";
+        trade.exitPrice = trade.sl;
+        trade.pnl = ((trade.entry - trade.sl) / trade.entry) * 100;
         updated = true;
         closedTrades.push(trade);
       }
@@ -68,10 +76,14 @@ export function calculateStats(trades) {
   const losses = closed.filter(t => t.status === "LOSS").length;
   const rate = closed.length === 0 ? 0 : (wins / closed.length) * 100;
   
+  // Hitung total PnL kumulatif
+  const totalPnL = closed.reduce((acc, t) => acc + (t.pnl || 0), 0);
+  
   return {
     rate,
     wins,
     losses,
-    total: closed.length
+    total: closed.length,
+    pnl: totalPnL
   };
 }
