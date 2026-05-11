@@ -1,0 +1,14 @@
+name = "crypto-signal-bot"
+main = "src/index.js"
+compatibility_date = "2025-03-20"
+compatibility_flags = ["nodejs_compat_v2"]
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[vars]
+# Variabel non-sensitif
+SIGNAL_INTERVAL = "15m"
+KLINE_LIMIT = "100"
+BINANCE_BASE_URL = "https://api1.binance.com"
+TRACKED_SYMBOLS = "BTCUSDT,ETHUSDT,SOLUSDT"

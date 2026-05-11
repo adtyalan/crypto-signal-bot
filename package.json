@@ -4,8 +4,10 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "wrangler dev",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mcp:docgen": "workers-mcp docgen src/index.js",
+    "deploy": "npm run mcp:docgen && wrangler deploy"
   },
   "keywords": [],
   "author": "",
@@ -17,5 +19,9 @@
     "mongodb": "^7.1.1",
     "node-cron": "^4.2.1",
     "technicalindicators": "^3.1.0"
+  },
+  "devDependencies": {
+    "workers-mcp": "^0.0.13",
+    "wrangler": "^4.90.0"
   }
 }

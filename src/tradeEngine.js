@@ -1,27 +1,28 @@
 export function calculateSLTP(symbol, signal, indicators) {
   const { lastClose, data } = indicators;
-  // Ambil 10 candle terakhir untuk cari high/low
-  const recentCandles = data.slice(-10);
+  // Ambil 5 candle terakhir untuk cari high/low (Scalping style)
+  const recentCandles = data.slice(-5);
   
   let sl, tp;
-  const riskReward = 2;
+  const riskReward = 1.5;
 
   if (signal === "BUY") {
-    // SL = Low terendah dari 10 candle terakhir
+    // SL = Low terendah dari 5 candle terakhir
     const low = Math.min(...recentCandles.map(c => c.low));
-    sl = low * 0.998; // Buffer 0.2%
+    sl = low * 0.999; // Buffer 0.1% (lebih ketat)
     const risk = lastClose - sl;
     tp = lastClose + (risk * riskReward);
   } else if (signal === "SELL") {
-    // SL = High tertinggi dari 10 candle terakhir
+    // SL = High tertinggi dari 5 candle terakhir
     const high = Math.max(...recentCandles.map(c => c.high));
-    sl = high * 1.002; // Buffer 0.2%
+    sl = high * 1.001; // Buffer 0.1% (lebih ketat)
     const risk = sl - lastClose;
     tp = lastClose - (risk * riskReward);
   }
 
   return { entry: lastClose, sl, tp, rr: riskReward };
 }
+
 
 export function evaluateTrades(trades, currentPrices) {
   let updated = false;

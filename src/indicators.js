@@ -15,6 +15,16 @@ export function calculateIndicators(data) {
     signalPeriod: 9,
   });
 
+  const ema9 = EMA.calculate({
+    values: closes,
+    period: 9,
+  });
+
+  const ema20 = EMA.calculate({
+    values: closes,
+    period: 20,
+  });
+
   const ema50 = EMA.calculate({
     values: closes,
     period: 50,
@@ -23,6 +33,8 @@ export function calculateIndicators(data) {
   return {
     rsi: rsi[rsi.length - 1],
     macd: macd[macd.length - 1],
+    ema9: ema9[ema9.length - 1],
+    ema20: ema20[ema20.length - 1],
     ema50: ema50[ema50.length - 1],
     lastClose: closes[closes.length - 1],
     data: data, // Keep full data for SL/TP calculation

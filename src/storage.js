@@ -1,29 +1,31 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const uri = process.env.MONGO_URI || "mongodb+srv://alanaditya:<db_password>@cluster0.es1sjrx.mongodb.net/?appName=Cluster0";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
+let client = null;
 let db = null;
 
-async function getDb() {
+async function getDb(env) {
   if (db) return db;
+  
+  const uri = env.MONGO_URI;
+  if (!uri) {
+    throw new Error("MONGO_URI is not defined in environment variables");
+  }
+
+  if (!client) {
+    client = new MongoClient(uri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      }
+    });
+  }
+
   try {
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    db = client.db('trading_bot_db');
+    // Optional: ping to ensure connection
+    // await client.db("admin").command({ ping: 1 });
+    db = client.db(env.MONGO_DB_NAME || 'trading_bot_db');
     return db;
   } catch (error) {
     console.error("MongoDB connection error:", error);
@@ -31,10 +33,17 @@ async function getDb() {
   }
 }
 
-// State management (previously state.json)
-export async function loadState() {
+export async function closeDb() {
+  if (client) {
+    await client.close();
+    client = null;
+    db = null;
+  }
+}
+
+export async function loadState(env) {
   try {
-    const database = await getDb();
+    const database = await getDb(env);
     const results = await database.collection('states').find({}).toArray();
     const state = {};
     results.forEach(item => {
@@ -47,9 +56,9 @@ export async function loadState() {
   }
 }
 
-export async function saveState(state) {
+export async function saveState(state, env) {
   try {
-    const database = await getDb();
+    const database = await getDb(env);
     const operations = Object.entries(state).map(([symbol, signal]) => ({
       updateOne: {
         filter: { symbol },
@@ -66,12 +75,10 @@ export async function saveState(state) {
   }
 }
 
-// Trade management (previously trades.json)
-export async function loadTrades() {
+export async function loadTrades(env) {
   try {
-    const database = await getDb();
+    const database = await getDb(env);
     const trades = await database.collection('trades').find({}).toArray();
-    // We remove the MongoDB _id to keep the object clean for the rest of the app
     return trades.map(({ _id, ...trade }) => trade);
   } catch (error) {
     console.error("Error loading trades from MongoDB:", error);
@@ -79,9 +86,9 @@ export async function loadTrades() {
   }
 }
 
-export async function saveTrades(trades) {
+export async function saveTrades(trades, env) {
   try {
-    const database = await getDb();
+    const database = await getDb(env);
     const operations = trades.map(trade => ({
       updateOne: {
         filter: { id: trade.id },
@@ -98,10 +105,9 @@ export async function saveTrades(trades) {
   }
 }
 
-// Extra methods based on user reference
 export const storage = {
-  saveState: async (symbol, signal) => {
-    const database = await getDb();
+  saveState: async (symbol, signal, env) => {
+    const database = await getDb(env);
     await database.collection('states').updateOne(
       { symbol },
       { $set: { signal, updatedAt: new Date() } },
@@ -109,14 +115,14 @@ export const storage = {
     );
   },
 
-  getState: async (symbol) => {
-    const database = await getDb();
+  getState: async (symbol, env) => {
+    const database = await getDb(env);
     const result = await database.collection('states').findOne({ symbol });
     return result ? result.signal : 'HOLD';
   },
 
-  addTrade: async (trade) => {
-    const database = await getDb();
+  addTrade: async (trade, env) => {
+    const database = await getDb(env);
     return await database.collection('trades').insertOne({
       ...trade,
       createdAt: new Date()
