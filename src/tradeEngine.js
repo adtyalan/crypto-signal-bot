@@ -62,9 +62,16 @@ export function evaluateTrades(trades, currentPrices) {
   return { newTrades, updated, closedTrades };
 }
 
-export function calculateWinrate(trades) {
+export function calculateStats(trades) {
   const closed = trades.filter(t => t.status === "WIN" || t.status === "LOSS");
-  if (closed.length === 0) return 0;
   const wins = closed.filter(t => t.status === "WIN").length;
-  return (wins / closed.length) * 100;
+  const losses = closed.filter(t => t.status === "LOSS").length;
+  const rate = closed.length === 0 ? 0 : (wins / closed.length) * 100;
+  
+  return {
+    rate,
+    wins,
+    losses,
+    total: closed.length
+  };
 }

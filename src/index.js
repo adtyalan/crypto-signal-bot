@@ -3,7 +3,7 @@ import { calculateIndicators } from "./indicators.js";
 import { generateSignal } from "./signal.js";
 import { sendMessage } from "./notifier.js";
 import { loadState, saveState, loadTrades, saveTrades, closeDb } from "./storage.js";
-import { calculateSLTP, evaluateTrades, calculateWinrate } from "./tradeEngine.js";
+import { calculateSLTP, evaluateTrades, calculateStats } from "./tradeEngine.js";
 
 function formatPair(symbol) {
   if (symbol.endsWith("USDT")) {
@@ -83,8 +83,8 @@ async function runBot(env) {
       }
     }
 
-    // Kalkulasi Winrate
-    const winrate = calculateWinrate(trades);
+    // Kalkulasi Statistik
+    const stats = calculateStats(trades);
     const timestamp = new Date().toLocaleString("id-ID", { hour12: false, timeZone: "Asia/Jakarta" });
 
     // Build Message
@@ -107,7 +107,7 @@ async function runBot(env) {
     const finalMessage = [
       `🚀 Crypto Signal V2 (${INTERVAL})`,
       `Waktu: ${timestamp} WIB`,
-      `Winrate Keseluruhan: ${winrate.toFixed(2)}%`,
+      `Winrate Keseluruhan: ${stats.rate.toFixed(2)}% (${stats.wins}W - ${stats.losses}L)`,
       "",
       ...tradeNotifications,
       tradeNotifications.length > 0 ? "" : null,
